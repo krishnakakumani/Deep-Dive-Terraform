@@ -24,15 +24,15 @@ pipeline {
         stage('NetworkInit'){
             steps {
                 dir('m8/networking/'){
-                    sh 'terraform --version'
-                    sh "terraform init --backend-config='path=${params.CONSUL_STATE_PATH}'"
+                    bat 'terraform --version'
+                    bat "terraform init --backend-config='path=${params.CONSUL_STATE_PATH}'"
                 }
             }
         }
         stage('NetworkValidate'){
             steps {
                 dir('m8/networking/'){
-                    sh 'terraform validate'
+                    bat 'terraform validate'
                 }
             }
         }
@@ -41,11 +41,11 @@ pipeline {
                 dir('m8/networking/'){
                     script {
                         try {
-                           sh "terraform workspace new ${params.WORKSPACE}"
+                           bat "terraform workspace new ${params.WORKSPACE}"
                         } catch (err) {
-                            sh "terraform workspace select ${params.WORKSPACE}"
+                            bat "terraform workspace select ${params.WORKSPACE}"
                         }
-                        sh "terraform plan -out terraform-networking.tfplan;echo \$? > status"
+                        bat "terraform plan -out terraform-networking.tfplan;echo \$? > status"
                         stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
                 }
@@ -68,7 +68,7 @@ pipeline {
                     if(apply){
                         dir('m8/networking/'){
                             unstash "terraform-networking-plan"
-                            sh 'terraform apply terraform-networking.tfplan'
+                            bat 'terraform apply terraform-networking.tfplan'
                         }
                     }
                 }
